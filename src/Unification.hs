@@ -1,20 +1,16 @@
 module Unification
-    ( run
+    (
+      ProgVal(..)       
+     ,Binding(..)
+     ,unify
+     ,run
     ) where
 import qualified Data.Map    as M
 import           Data.Maybe  (fromMaybe)
 
 run :: IO ()
--- run = print $ unify (Application "f" [Variable "X", Application "h" [Variable "X"], Variable "Y", Application "g" [Variable "Y"]])
-                    -- (Application "f" [Application "g" [Variable "Z"], Variable "W", Variable "Z", Variable "X"]) (Binding M.empty)
--- run = print $ unify (Application "f" [Atom "a", Atom "b" , Application "bar" [Atom "t"]])
---                     (Application "f" [Atom "a",  Variable "V", Variable "X"]) (Binding M.empty)
--- run = print $ unify (Application "f" [Atom "a", Variable "V" , Application "bar" [Variable "D"]])
---                     (Application "f" [Variable "D",  Atom "k", Application "bar" [Atom "a"]]) (Binding M.empty)
--- run = print $ unify (Application "f" [Variable "X", Variable "Y"])
---                     (Application "f" [Atom "r", Application "g" [Variable "X"]]) (Binding M.empty)
-run = print $ unify (Variable "X")
-                    (Application "f" [Variable "X"]) (Binding M.empty)
+run = print $ unify (Application "f" [Atom "a", Variable "V" , Application "bar" [Variable "D"]])
+                    (Application "f" [Variable "D",  Atom "k", Application "bar" [Atom "a"]]) (Binding M.empty)
 
 data ProgVal = Atom String
              | Variable String
@@ -31,7 +27,6 @@ unify  x (Variable y) bindings =  unifyVariable (Variable y) x bindings
 unify (Application _ [x]) (Application _ [y]) bindings = unify x y bindings
 unify (Application xname (x:xs)) (Application yname (y:ys)) bindings = unify (Application xname xs) (Application yname ys)
                                                  $ either id (\_ -> Error "Application Fail") (unify x y bindings)
-unify (Atom _) (Atom _) _ = Right "None"
 unify _ _ bindings = Left bindings
 
 
